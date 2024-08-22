@@ -1,1 +1,1 @@
-# debiased_infer
+# debiased_LogisticRegression
