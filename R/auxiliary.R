@@ -11,7 +11,7 @@ d.invlogit = function(y){
   return( 1 / (4*cosh(y/2)^2) )
 }
 
-DualObj <- function(X, x, theta_hat, ll_cur, gamma_n = 0.05) {
+DualObj <- function(X, x, theta_hat, alpha_hat, ll_cur, gamma_n = 0.05) {
   #' the dual objective function
   #' @param X The input design n*d matrix.
   #' @param x The current query point, which is a 1*d array.

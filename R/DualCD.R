@@ -12,78 +12,102 @@
 #' @param max_iter The maximum number of coordinate descent iterations. (Default: max_iter=5000.)
 #'
 #' @return The solution vector to our dual debiasing program.
+#' 
+#' @examples
+#' \donttest{
+#'   require(MASS)
+#'   require(glmnet)
+#'   d = 1000
+#'   n = 900
+#'
+#'   Sigma = array(0, dim = c(d,d)) + diag(d)
+#'   rho = 0.1
+#'   for(i in 1:(d-1)){
+#'     for(j in (i+1):d){
+#'       if ((j < i+6) | (j > i+d-6)){
+#'         Sigma[i,j] = rho
+#'         Sigma[j,i] = rho
+#'       }
+#'     }
+#'   }
+#'
+#'   ## Current query point
+#'   x_cur = rep(0, d)
+#'   x_cur[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8)
+#'   x_cur = array(x_cur, dim = c(1,d))
+#'
+#'   ## True regression coefficient
+#'   s_theta = 5
+#'   theta_0 = rep(0, d)
+#'   theta_0[1:s_theta] = sqrt(5)
+#'   
+#'   ## Generate the design matrix and outcomes
+#'   X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
+#'   Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
+#'   
+#'   ## Estimate the coefficient and intercept with logistic regression with L-1 penalty
+#'   lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+#'                   standardize = F, intercept = T, nfolds = 5)
+
+#'   lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
+#'                       standardize = F, intercept = T)
+#'   theta_hat = coef(lasso_pilot)[-1]
+#'   alpha_hat = coef(lasso_pilot)[1]
+#'   
+#'   ## Solve the dual weights
+#'   deb_res = DualCD(X_sim, x_cur, theta_hat, alpha_hat, gamma_n=0.1)
+#' }
 #'
 #' @export
 #'
-DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, cv_fold = 5,
-                        cv_rule = "1se", robust = FALSE) {
-  n = dim(X)[1]
-  if (is.null(gamma_lst)) {
-    gamma_lst = seq(0, max(abs(x)), length.out = 41)[-1]
-  }
+DualCD = function(X, x, theta_hat=NULL, alpha_hat=NULL, gamma_n=0.05, ll_init=NULL, eps=1e-9,
+                  max_iter=5000) {
+  n <- nrow(X)
+  d <- ncol(X)
   
-  kf = createFolds(1:n, cv_fold, list = FALSE, returnTrain = TRUE)
-  dual_loss = matrix(0, nrow = cv_fold, ncol = length(gamma_lst))
-  f_ind = 1
-  
-  for (fold in 1:cv_fold) {
-    train_ind <- (kf != fold)
-    test_ind <- (kf == fold)
-    X_train <- X[train_ind, ]
-    X_test <- X[test_ind, ]
-    
-    for (j in 1:length(gamma_lst)) {
-      w_train = DebiasProg(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_lst[j])
-      
-      if (any(is.na(w_train))) {
-        message(paste("The primal debiasing program for this fold of the data is not feasible when gamma=", round(gamma_lst[j], 4), "!\n"))
-        dual_loss[f_ind, j] = NA
-      } else {
-        ll_train = DualCD(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_lst[j], ll_init = NULL, eps = 1e-8, max_iter = 5000)
-        
-        if (sum(abs(w_train + drop(X_train %*% ll_train) / sqrt(dim(X_train)[1])) > 1/sqrt(n)) > sum(w_train==0)) { # 1e-3
-          warning(paste("The strong duality between primal and dual programs does not satisfy when gamma=", round(gamma_lst[j], 4), "!\n"))
-          # dual_loss[f_ind, j] = NA
-        } else {
-          # dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, ll_cur = ll_train, gamma_n = gamma_lst[j])
-        }
-        dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, ll_cur = ll_train, gamma_n = gamma_lst[j])
-      }
-    }
-    
-    f_ind = f_ind + 1
-  }
-  
-  if (robust == TRUE){
-    mean_dual_loss = apply(dual_loss, 2, robust_mean)
-    std_dual_loss = apply(dual_loss, 2, function(x){sd(x, na.rm = FALSE)}) / sqrt(cv_fold)
+  if (is.null(theta_hat)) {
+    quad <- diag(1/4)
   }else{
-    mean_dual_loss = apply(dual_loss, 2, mean, na.rm = FALSE)
-    std_dual_loss = apply(dual_loss, 2, function(x){sd(x, na.rm = FALSE)}) / sqrt(cv_fold)
-  }
-  
-  if (cv_rule == "mincv") {
-    gamma_n_opt = gamma_lst[which.min(mean_dual_loss)]
-  }
-  if (cv_rule == "1se") {
-    One_SE = (mean_dual_loss > min(mean_dual_loss, na.rm = TRUE) + std_dual_loss[which.min(mean_dual_loss)]) &
-      (gamma_lst < gamma_lst[which.min(mean_dual_loss)])
-    if (sum(One_SE, na.rm = TRUE) == 0) {
-      One_SE = rep(TRUE, length(gamma_lst))
+    if (is.null(alpha_hat)){
+      alpha_hat = 0
     }
-    gamma_lst = gamma_lst[One_SE]
-    gamma_n_opt = gamma_lst[which.min(mean_dual_loss[One_SE])]
-  }
-  if (cv_rule == "minfeas") {
-    gamma_n_opt = min(gamma_lst[!is.na(mean_dual_loss)])
+    quad <- diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   }
   
-  w_obs = DebiasProg(X = X, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_n_opt)
-  ll_obs = DualCD(X = X, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_n_opt, ll_init = NULL, eps = 1e-9)
+  A <- t(X) %*% quad %*% X
   
-  return(list(w_obs = w_obs, ll_obs = ll_obs, gamma_n_opt = gamma_n_opt, dual_loss = dual_loss))
-}
-
-robust_mean = function(v){
-  mean(v[-c(which.min(v), which.max(v))], na.rm = F)
+  if (is.null(ll_init)) {
+    ll_new <- rep(1, d)
+  } else {
+    ll_new <- ll_init
+  }
+  
+  ll_old <- 100 * rep(1, d)
+  cnt <- 0
+  flag <- 0
+  
+  while ((norm(ll_old - ll_new, type = "2") > eps) && ((cnt <= max_iter) || (flag == 0))) {
+    ll_old = ll_new
+    cnt = cnt + 1
+    
+    # Coordinate descent
+    for (j in 1:d) {
+      ll_cur = ll_new
+      mask = rep(TRUE, d)
+      mask[j] = FALSE
+      A_kj = A[mask, j]
+      ll_cur = ll_cur[mask]
+      ll_new[j] = SoftThres(-(A_kj %*% ll_cur) / n - x[j], lamb = gamma_n) / (A[j, j] / n)
+    }
+    
+    if ((cnt > max_iter) && (flag == 0)) {
+      warning(paste0("The coordinate descent algorithm has reached its maximum number of iterations: ",
+                     max_iter, "! Reiterate one more times without small perturbations to the scaled design matrix..."))
+      A <- A + 1e-9 * diag(d)
+      cnt <- 0
+      flag <- 1
+    }
+  }
+  
+  return(ll_new)
 }
