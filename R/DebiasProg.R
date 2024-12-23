@@ -62,13 +62,25 @@
 
 library(CVXR)
 
-DebiasProg = function(X, x, theta_hat, alpha_hat, gamma_n = 0.1) {
+DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1) {
   n = dim(X)[1]
   quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   w = Variable(rows = n, cols = 1)
   debias_obj = Minimize(quad_form(w, quad))
-  constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
-                     x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n)
+  
+  if (intercept==TRUE){
+    constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
+                       x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n,
+                       1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) <= gamma_n / max(abs(x)),
+                       1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) >= -gamma_n / max(abs(x)))
+  }
+  
+  if (intercept==FALSE){
+    constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
+                       x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n)
+  }
+  
+  
   debias_prog = Problem(debias_obj, constraints)
   
   tryCatch({

@@ -83,8 +83,8 @@
 
 library(caret)
 
-DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, cv_fold = 5,
-                        cv_rule = "1se", robust = FALSE) {
+DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, intercept=TRUE,
+                        cv_fold = 5, cv_rule = "1se", robust = FALSE) {
   n = dim(X)[1]
   if (is.null(gamma_lst)) {
     gamma_lst = seq(0, max(abs(x)), length.out = 41)[-1]
@@ -101,21 +101,33 @@ DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, cv_
     X_test <- X[test_ind, ]
     
     for (j in 1:length(gamma_lst)) {
-      w_train = DebiasProg(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_lst[j])
+      w_train = DebiasProg(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
+                           intercept = intercept, gamma_n = gamma_lst[j])
       
       if (any(is.na(w_train))) {
         message(paste("The primal debiasing program for this fold of the data is not feasible when gamma=", round(gamma_lst[j], 4), "!\n"))
         dual_loss[f_ind, j] = NA
       } else {
-        ll_train = DualCD(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_lst[j], ll_init = NULL, eps = 1e-8, max_iter = 5000)
+        ll_train = DualCD(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
+                          intercept = intercept, gamma_n = gamma_lst[j], ll_init = NULL, eps = 1e-5, max_iter = 5000)
         
-        if (sum(abs(w_train + drop(X_train %*% ll_train) / sqrt(dim(X_train)[1])) > 1/sqrt(n)) > sum(w_train==0)) { # 1e-3
-          warning(paste("The strong duality between primal and dual programs does not satisfy when gamma=", round(gamma_lst[j], 4), "!\n"))
-          # dual_loss[f_ind, j] = NA
-        } else {
-          # dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, ll_cur = ll_train, gamma_n = gamma_lst[j])
+        if (intercept==TRUE){
+          X_tr2 = cbind(1, X_train)
         }
-        dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, ll_cur = ll_train, gamma_n = gamma_lst[j])
+        
+        if (intercept==FALSE){
+          X_tr2 = X_train
+        }
+        
+        if (sum(abs(w_train + drop(X_tr2 %*% ll_train) / sqrt(dim(X_tr2)[1])) > 1/sqrt(n)) > 0) {
+          warning(paste("The strong duality between primal and dual programs does not satisfy when gamma=", round(gamma_lst[j], 4), "!\n"))
+          #dual_loss[f_ind, j] = NA
+        } #else {
+          #dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
+          #                              ll_cur = ll_train, intercept = intercept, gamma_n = gamma_lst[j])
+        #}
+        dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
+                                      ll_cur = ll_train, intercept = intercept, gamma_n = gamma_lst[j])
       }
     }
     
@@ -150,8 +162,4 @@ DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, cv_
   ll_obs = DualCD(X = X, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_n_opt, ll_init = NULL, eps = 1e-9)
   
   return(list(w_obs = w_obs, ll_obs = ll_obs, gamma_n_opt = gamma_n_opt, dual_loss = dual_loss))
-}
-
-robust_mean = function(v){
-  mean(v[-c(which.min(v), which.max(v))], na.rm = F)
 }
