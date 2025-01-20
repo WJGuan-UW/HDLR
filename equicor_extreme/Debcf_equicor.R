@@ -67,7 +67,7 @@ for (i in 0:3) {
   # print(m_true)
   
   for (rule in c("1se", "mincv", "minfeas")){
-    for (it in 0){
+    for (it in 1){
       tryCatch({
         res = HDLR_cf(X_sim, Y_sim, x, n_gamma=50, cv_rule=rule, refitting=T, intercept=it)
         debias_res = data.frame(m_cur = res$m_pilot, m_deb = res$m, asym_sd = res$sd, intercept = it, rule=rule)
