@@ -28,7 +28,7 @@ df = data.frame()
 
 # read debiased inference results
 
-for (it in 1){
+for (it in 0){
   for (i in 0:3){
     for (rule in para_rule){
       for (jobid in 1:nsim){
@@ -85,7 +85,7 @@ for (i in 0:3){
   m_true = c(x %*% theta_0) + alpha_0
   #par(mfrow=c(1,3))
   for (rule in c("1se","mincv","minfeas")){
-    subdf = df %>% filter(x==i, intercept==1)
+    subdf = df %>% filter(x==i, intercept==0)
     subdf = subdf[subdf['rule']==rule,]
     prob = mean( abs(invlogit(subdf$m_deb) - invlogit(m_true)) / 
                    (d.invlogit(subdf$m_deb) * subdf$asym_sd) < qnorm(0.975) )
@@ -144,7 +144,7 @@ for (i in 0:3) {
 
 df.cf = data.frame()
 
-for (it in 1){
+for (it in 0){
   for (i in 0:3){
     for (rule in c("1se", "mincv", "minfeas")){
       for (jobid in 1:nsim){
@@ -197,8 +197,8 @@ for (i in 0:3){
   
   m_true = c(x %*% theta_0) + alpha_0
   #par(mfrow=c(1,3))
-  for (rule in c("1se","mincv","minfeas")){
-    subdf = df.cf %>% filter(x==i, intercept==1)
+  for (rule in c("1se","mincv")){
+    subdf = df.cf %>% filter(x==i)
     subdf = subdf[subdf['rule']==rule,]
     prob = mean( abs(invlogit(subdf$m_deb) - invlogit(m_true)) / 
                    (d.invlogit(subdf$m_deb) * subdf$asym_sd) < qnorm(0.975) )
@@ -460,8 +460,8 @@ draw_bar_plot <- function(means, std_errors, truncation_level, colors, title, sh
   
   # Update y-axis labels and reverse order
   dataset_labels <- rev(c("HDLR:1se", "HDLR:mincv", "HDLR:minfeas",
-                          "HDLRcf:1se", "HDLRcf:mincv", "HDLRcf:minfeas",
-                          "SIHR", "oracle", "refit"))  # Reverse the order of labels
+                          "HDLRcf:1se", "HDLRcf:mincv",
+                          "oracle", "refit", "SIHR"))  # Reverse the order of labels
   
   # Create horizontal bar plot with reversed y-axis labels and consistent colors
   bar_midpoints <- barplot(
@@ -491,7 +491,7 @@ draw_bar_plot <- function(means, std_errors, truncation_level, colors, title, sh
     
     if (is_truncated[i]) {
       # Adjust rugged edges to point outward
-      if (means[9 - i + 1] > 0) {
+      if (means[8 - i + 1] > 0) {
         # Positive truncated bar
         y_zigzag <- seq(y_bottom, y_top, length.out = zigzag_density)
         x_zigzag <- rep(c(truncation_level, truncation_level + zigzag_width), length.out = length(y_zigzag))  # Extend outward beyond truncation level
@@ -516,14 +516,14 @@ draw_bar_plot <- function(means, std_errors, truncation_level, colors, title, sh
     # Add numerical value with standard deviation for truncated bars inside the bar
     if (is_truncated[i]) {
       label <- paste0(
-        round(means[9 - i + 1], 2),  # Correct indexing for means
+        round(means[8 - i + 1], 2),  # Correct indexing for means
         " (", 
-        round(std_errors[9 - i + 1], 2),  # Correct indexing for standard deviations
+        round(std_errors[8 - i + 1], 2),  # Correct indexing for standard deviations
         ")"
       )
       
       # Display the label inside the bar
-      if (means[9 - i + 1] > 0) {
+      if (means[8 - i + 1] > 0) {
         text(truncation_level * 0.9, bar_midpoints[i], labels = label, cex = 1, col = "white", pos = 2)  # Position near truncation level
       } else {
         text(-truncation_level * 0.9, bar_midpoints[i], labels = label, cex = 1, col = "white", pos = 4)  # Position near -truncation level
@@ -586,7 +586,7 @@ draw_coverage_plot <- function(group_data, colors, title, show_labels = TRUE) {
   plot(
     group_data$prob, seq_along(group_data$method), 
     xlim = c(x_lower_limit, 1),
-    ylim = c(0.5, 9.5),  # Set limits
+    ylim = c(0.5, 8.5),  # Set limits
     xlab = "",  # Remove x-axis label
     ylab = "",  # Remove y-axis label
     main = title,
@@ -695,7 +695,7 @@ generate_qq_plot <- function(data, colors = NULL, title = "QQ Plot", subtitle = 
 }
 
 bar_colors <- c("HDLR:1se" = 'blue', "HDLR:mincv" = "deepskyblue", "HDLR:minfeas" = "skyblue",
-                "HDLRcf:1se" = 'red', "HDLRcf:mincv" = "coral", "HDLRcf:minfeas" = "pink1",
+                "HDLRcf:1se" = 'red', "HDLRcf:mincv" = "coral",
                 "oracle" = 'grey', "refit" = "purple", "SIHR" = "violet")  # example colors
 
 
@@ -708,15 +708,17 @@ for (i in 0:3){
   generate_qq_plot(subdata.HDLR, colors = bar_colors[1:3], title = titles[i+1])
   
   subdata.cf = ppresults.cf %>% filter(x==i)
-  generate_qq_plot(subdata.cf, colors = bar_colors[4:6], title = titles[i+1])
+  generate_qq_plot(subdata.cf, colors = bar_colors[4:5], title = titles[i+1])
   
   subdata.SIHR = ppresults.SIHR %>% filter(x==i)
-  generate_qq_plot(subdata.SIHR, colors = bar_colors[9], title = titles[i+1])
+  generate_qq_plot(subdata.SIHR, colors = bar_colors[8], title = titles[i+1])
   
   subdata.refit = ppresults.refit %>% filter(x==i)
-  generate_qq_plot(subdata.refit, colors = bar_colors[7:8], title = titles[i+1])
+  generate_qq_plot(subdata.refit, colors = bar_colors[6:7], title = titles[i+1])
   Sys.sleep(0.5)
 }
+
+par(mfrow=c(1,1))
 
 #### Variance ####
 
@@ -726,15 +728,15 @@ var_deb$method = rep(c("HDLR:1se","HDLR:mincv","HDLR:minfeas"), 4)
 variances = rbind(variances, var_deb)
 
 var_cf = coverage.cf[c("x", "var_med", "var_se")]
-var_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
+var_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv"), 4)
 variances = rbind(variances, var_cf)
+
+var_refit = coverage.refit[c("x","var_med","var_se","method")]
+variances = rbind(variances, var_refit)
 
 var_SIHR = coverage.SIHR[c("x","var_med","var_se")]
 var_SIHR$method = "SIHR"
 variances = rbind(variances, var_SIHR)
-
-var_refit = coverage.refit[c("x","var_med","var_se","method")]
-variances = rbind(variances, var_refit)
 
 # Plot the 4 groups of datasets
 par(mfrow = c(1, 4), mar = c(2, 2, 4, 2), oma = c(0, 9, 0, 0))  # Increased left margin
@@ -760,15 +762,15 @@ cover_deb$method = rep(c("HDLR:1se","HDLR:mincv","HDLR:minfeas"), 4)
 cover_prob = rbind(cover_prob, cover_deb)
 
 cover_cf = coverage.cf[c("x", "prob", "CI.upp", "CI.low")]
-cover_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
+cover_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv"), 4)
 cover_prob = rbind(cover_prob, cover_cf)
+
+cover_refit = coverage.refit[c("x", "prob", "CI.upp", "CI.low", "method")]
+cover_prob = rbind(cover_prob, cover_refit)
 
 cover_SIHR = coverage.SIHR[c("x", "prob", "CI.upp", "CI.low")]
 cover_SIHR$method = "SIHR"
 cover_prob = rbind(cover_prob, cover_SIHR)
-
-cover_refit = coverage.refit[c("x", "prob", "CI.upp", "CI.low", "method")]
-cover_prob = rbind(cover_prob, cover_refit)
 
 par(
   mfrow = c(1, 4),          # 1 row and 4 columns of plots
@@ -802,15 +804,15 @@ bias_deb$method = rep(c("debias:1se","debias:mincv","debias:minfeas"), 4)
 biases = rbind(biases, bias_deb)
 
 bias_cf = coverage.cf[c("x", "bias_avg", "bias_se")]
-bias_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
+bias_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv"), 4)
 biases = rbind(biases, bias_cf)
+
+bias_refit = coverage.refit[c("x", "bias_avg", "bias_se", "method")]
+biases = rbind(biases, bias_refit)
 
 bias_SIHR = coverage.SIHR[c("x", "bias_avg", "bias_se")]
 bias_SIHR$method = "SIHR"
 biases = rbind(biases, bias_SIHR)
-
-bias_refit = coverage.refit[c("x", "bias_avg", "bias_se", "method")]
-biases = rbind(biases, bias_refit)
 
 par(mfrow = c(1, 4), mar = c(2, 2, 4, 2), oma = c(0, 9, 0, 0))  # Increased left margin
 for (i in 1:4) {
