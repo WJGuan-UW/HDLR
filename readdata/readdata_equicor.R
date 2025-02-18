@@ -461,7 +461,7 @@ draw_bar_plot <- function(means, std_errors, truncation_level, colors, title, sh
   # Update y-axis labels and reverse order
   dataset_labels <- rev(c("HDLR:1se", "HDLR:mincv", "HDLR:minfeas",
                           "HDLRcf:1se", "HDLRcf:mincv", "HDLRcf:minfeas",
-                          "oracle", "refit", "SIHR"))  # Reverse the order of labels
+                          "SIHR", "oracle", "refit"))  # Reverse the order of labels
   
   # Create horizontal bar plot with reversed y-axis labels and consistent colors
   bar_midpoints <- barplot(
@@ -718,8 +718,6 @@ for (i in 0:3){
   Sys.sleep(0.5)
 }
 
-par(mfrow=c(1,1))
-
 #### Variance ####
 
 variances = data.frame()
@@ -731,12 +729,12 @@ var_cf = coverage.cf[c("x", "var_med", "var_se")]
 var_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
 variances = rbind(variances, var_cf)
 
-var_refit = coverage.refit[c("x","var_med","var_se","method")]
-variances = rbind(variances, var_refit)
-
 var_SIHR = coverage.SIHR[c("x","var_med","var_se")]
 var_SIHR$method = "SIHR"
 variances = rbind(variances, var_SIHR)
+
+var_refit = coverage.refit[c("x","var_med","var_se","method")]
+variances = rbind(variances, var_refit)
 
 # Plot the 4 groups of datasets
 par(mfrow = c(1, 4), mar = c(2, 2, 4, 2), oma = c(0, 9, 0, 0))  # Increased left margin
@@ -745,7 +743,7 @@ for (i in 1:4) {
   draw_bar_plot(
     means = subvars$var_med,
     std_errors = subvars$var_se,
-    truncation_level = 0.5,
+    truncation_level = 0.25,
     colors = bar_colors,
     title = titles[i],
     show_labels = (i == 1)  # Only show y-axis labels on the first plot
@@ -765,12 +763,12 @@ cover_cf = coverage.cf[c("x", "prob", "CI.upp", "CI.low")]
 cover_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
 cover_prob = rbind(cover_prob, cover_cf)
 
-cover_refit = coverage.refit[c("x", "prob", "CI.upp", "CI.low", "method")]
-cover_prob = rbind(cover_prob, cover_refit)
-
 cover_SIHR = coverage.SIHR[c("x", "prob", "CI.upp", "CI.low")]
 cover_SIHR$method = "SIHR"
 cover_prob = rbind(cover_prob, cover_SIHR)
+
+cover_refit = coverage.refit[c("x", "prob", "CI.upp", "CI.low", "method")]
+cover_prob = rbind(cover_prob, cover_refit)
 
 par(
   mfrow = c(1, 4),          # 1 row and 4 columns of plots
@@ -807,12 +805,12 @@ bias_cf = coverage.cf[c("x", "bias_avg", "bias_se")]
 bias_cf$method = rep(c("HDLRcf:1se","HDLRcf:mincv","HDLRcf:minfeas"), 4)
 biases = rbind(biases, bias_cf)
 
-bias_refit = coverage.refit[c("x", "bias_avg", "bias_se", "method")]
-biases = rbind(biases, bias_refit)
-
 bias_SIHR = coverage.SIHR[c("x", "bias_avg", "bias_se")]
 bias_SIHR$method = "SIHR"
 biases = rbind(biases, bias_SIHR)
+
+bias_refit = coverage.refit[c("x", "bias_avg", "bias_se", "method")]
+biases = rbind(biases, bias_refit)
 
 par(mfrow = c(1, 4), mar = c(2, 2, 4, 2), oma = c(0, 9, 0, 0))  # Increased left margin
 for (i in 1:4) {
