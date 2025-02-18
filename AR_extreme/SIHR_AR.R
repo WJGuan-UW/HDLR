@@ -52,18 +52,19 @@ X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
 Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
 
 ## Lasso pilot estimator
-lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
-                standardize = F, intercept = T, nfolds = 5)
+# lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+#                 standardize = F, intercept = T, nfolds = 5)
 
-lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
-                     standardize = F, intercept = T)
-theta_hat = as.vector(coef(lasso_pilot))
+# lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
+#                      standardize = F, intercept = T)
+# theta_hat = as.vector(coef(lasso_pilot))
 
 ## The 'LF' function by Zijian Guo, Rong Ma, and Toni Cai
-res_LF = LF(X_sim, Y_sim, x, model = 'logistic', intercept = T)
+res_LF = LF(X_sim, Y_sim, x, model = 'logistic',
+            intercept = T, intercept.loading = T, prob.filter = 0.01)
 debias_res = data.frame(
   x = 0:3,
-  m_deb = res_LF$est.debias.vec + alpha_0,
+  m_deb = res_LF$est.debias.vec,
   asym_sd = res_LF$se.vec
 )
 

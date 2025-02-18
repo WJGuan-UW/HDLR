@@ -62,6 +62,31 @@ refit_res = glm(Y_sim ~ X_sim[,selected_var], family = binomial(link = 'logit'),
                 control=list(epsilon=1e-3))
 theta_refit_short = as.vector(refit_res$coefficients)
 
+## sample splitting
+group = rbinom(n, size=1, prob=0.5)
+for (k in 1:2){
+  if (k==1){
+    I1 = which(group==1)
+    I2 = which(group==0)
+  }
+  if (k==2){
+    I1 = which(group==0)
+    I2 = which(group==1)
+  }
+}
+
+lr2 = cv.glmnet(X_sim[I1,], Y_sim[I1], family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+                standardize = F, intercept = T, nfolds = 5)
+
+lasso_split = glmnet(X_sim[I1,], Y_sim[I1], family = binomial(link = 'logit'), alpha = 1, lambda = lr2$lambda.min,
+                     standardize = F, intercept = T)
+theta_split = coef(lasso_split)[-1]
+selected_var_split = which(abs(theta_split) != 0)
+
+sp_res = glm(Y_sim[I2] ~ X_sim[I2, selected_var_split], family = binomial(link = 'logit'), 
+             control=list(epsilon=1e-3))
+theta_split_short = as.vector(sp_res$coefficients)
+
 for (i in 0:3) {
   if (i == 0) {
     ## x0
@@ -98,6 +123,12 @@ for (i in 0:3) {
   asym_sd_refit = sqrt( t(x_refit_short) %*% vcov(refit_res) %*% x_refit_short )[1,1]
   debias_res = rbind(debias_res, list(x=i, method='refit', 
                                       m_est=est_refit, asym_sd=asym_sd_refit))
+  
+  x_split_short = c(1,x[selected_var_split])
+  est_split = sum(x_split_short * theta_split_short)
+  asym_sd_split = sqrt( t(x_split_short) %*% vcov(sp_res) %*% x_split_short )[1,1]
+  debias_res = rbind(debias_res, list(x=i, method='split', 
+                                      m_est=est_split, asym_sd=asym_sd_split))
 }
 
 write.csv(debias_res, paste0("./refit_res_AR/refit_AR_cov_d", d, "_n", n, "_", runInd, ".csv"), 
