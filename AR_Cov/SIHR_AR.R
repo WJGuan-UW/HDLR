@@ -61,10 +61,10 @@ Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
 #theta_hat = as.vector(coef(lasso_pilot))
 
 ## The 'LF' function by Zijian Guo, Rong Ma, and Toni Cai
-res_LF = LF(X_sim, Y_sim, x, model = 'logistic', intercept = T)
+res_LF = LF(X_sim, Y_sim, x, model = 'logistic', intercept = T, intercept.loading = T)
 debias_res = data.frame(
   x = 0:3,
-  m_deb = res_LF$est.debias.vec + alpha_0,
+  m_deb = res_LF$est.debias.vec,
   asym_sd = res_LF$se.vec
 )
 
