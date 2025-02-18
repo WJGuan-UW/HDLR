@@ -55,10 +55,11 @@ lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1,
 theta_hat = as.vector(coef(lasso_pilot))
 
 ## The 'LF' function by Zijian Guo, Rong Ma, and Toni Cai
-res_LF = LF(X_sim, Y_sim, x, model = 'logistic_alter')
+res_LF = LF(X_sim, Y_sim, x, model = 'logistic_alter', 
+            intercept = T, intercept.loading = T, prob.filter = 0.01)
 debias_res = data.frame(
   x = 0:3,
-  m_deb = res_LF$est.debias.vec + alpha_0,
+  m_deb = res_LF$est.debias.vec,
   asym_sd = res_LF$se.vec
 )
 
