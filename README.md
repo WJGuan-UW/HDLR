@@ -43,6 +43,11 @@ for (i in 1:d){
   }
 }
 
+## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
+set.seed(123)
+X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
+Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + 0.2))
+
 ## Current query point
 x = rep(0, d)
 x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
@@ -57,10 +62,6 @@ s_beta = 5
 theta_0 = rep(0, d)
 theta_0[1:s_beta] = sqrt(5)
 
-## Generate the design matrix and outcomes
-set.seed(123)
-X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
-Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + 0.2))
 ```
 
 We first try the original method: ``HDLR_infer``
