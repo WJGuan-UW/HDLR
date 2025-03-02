@@ -46,9 +46,8 @@ for (i in 1:d){
 x = rep(0, d)
 x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
 
-# The inverse logit function
 invlogit = function(y){
-  # the inverse-logit function \vphi
+  # the inverse-logit function \phi(t) = 1 / (1 + e^{-t})
   return( 1 / (1 + exp(-y)) )
 }
 
