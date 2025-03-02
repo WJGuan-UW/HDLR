@@ -14,7 +14,7 @@ We are still packaging the code. It will be ready shortly.
 
 ## Usage
 
-This R package has two main functions that correlates to two similar ways to construct estimators:
+This R package has two main functions that corresponds to two similar ways to construct estimators:
 
 ``HDLR_infer``: This is the original method, which constructs a bias-corrected estimator with a 95% confidence intervals on the case probability.
 
