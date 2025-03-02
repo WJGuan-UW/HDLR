@@ -1,4 +1,4 @@
-# HDLR: efficient inference for high-dimensional logistic regression
+# ``HDLR`` efficient inference for high-dimensional logistic regression
 
 This is the R package for constructing one-step estimators with inference for high-dimensional logistic regression, as proposed by Guan et al. (2025). 
 
@@ -85,5 +85,4 @@ cat("The true probability is", invlogit(x %*% theta_0 + 0.2))
 ```
 
 ## References
---------
 </a> W. Guan, Y. Zhang, D. Zhou, T. Cai and A. Giessing (2025). Efficient inference on high-dimensional logistic regression.
