@@ -44,6 +44,12 @@ for (i in 1:d){
 x = rep(0, d)
 x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
 
+# The inverse logit function
+invlogit = function(y){
+  # the inverse-logit function \vphi
+  return( 1 / (1 + exp(-y)) )
+}
+
 ## True regression coefficient
 s_beta = 5
 theta_0 = rep(0, d)
