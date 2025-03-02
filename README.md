@@ -1,4 +1,4 @@
-# ``HDLR`` efficient inference for high-dimensional logistic regression
+# ``HDLR``: efficient inference for high-dimensional logistic regression
 
 This is the R package for constructing one-step estimators with inference for high-dimensional logistic regression, as proposed by Guan et al. (2025). 
 
