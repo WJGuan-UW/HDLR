@@ -10,7 +10,7 @@
 #' @param level The confidence level of the confidence interval. Default is 0.95.
 #' 
 #' returns:
-#' @param m The debiasing estimator for the linear quantity x^T \theta_0.
+#' @param m The debiasing estimator for the log-odds, which is linear quantity x^T \theta_0.
 #' @param sd The standard deviation for m.
 #' @param prob The case probability 1 / (1 + exp(-m)).
 #' @param prob_upper The upper limit of the confidence interval for the case probability.
