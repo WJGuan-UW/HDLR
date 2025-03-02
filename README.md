@@ -55,7 +55,7 @@ X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
 Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + 0.2))
 ```
 
-We first try the original method: HDLR_infer
+We first try the original method: ``HDLR_infer``
 ```R
 res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
 
@@ -66,7 +66,7 @@ cat("The 95% confidence interval yielded by our method is [",
 cat("The true probability is", invlogit(x %*% theta_0))
 ```
 
-Then we try the cross-fitting method: HDLR_cf
+Then we try the cross-fitting method: ``HDLR_cf``
 ```R
 res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
 cat("The 95% confidence interval yielded by cross-fitting is [",
