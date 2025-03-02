@@ -1,5 +1,4 @@
-Unzip the file debinf_1222.zip, which contains all the current results I have, 
-only extreme probabilities + equicorrelated covariance is missing but it only goes to the appendix.
+Unzip the file debinf_0208.zip, which contains all the latest simulation results.
 
 Once unzipped, go to the directory, copy the folders 'debias_res_xx', 'debiascf_res_xx', 'SIHR_res_xx' and 'refit_res_xx' to the same directory as the readdata file.
 After you read in the results, you can generate all these plots.
