@@ -16,13 +16,14 @@ We are still packaging the code. It will be ready shortly.
 
 This R package has two main functions that corresponds to two similar ways to construct estimators:
 
-``HDLR_infer``: This is the original method, which constructs a bias-corrected estimator with a 95% confidence intervals on the case probability.
+``HDLR_infer``: This is the original method, which constructs a bias-corrected estimator with a confidence interval on the case probability.
 
 ``HDLR_cf``: This corresponds to the cross-fitted one step estimator, which similarly constructs an estimator with a 95% confidence interval.
 
 ## Some Demo for Running Our Package or Code
 
 ```R
+# Open the source files before the package is ready
 require(MASS)
 source('HDLR_infer.R')
 source('HDLR_cf.R')
@@ -84,3 +85,5 @@ cat("The true probability is", invlogit(x %*% theta_0 + 0.2))
 ```
 
 ## References
+--------
+</a> W. Guan, Y. Zhang, D. Zhou, T. Cai and A. Giessing (2025). Efficient inference on high-dimensional logistic regression.
