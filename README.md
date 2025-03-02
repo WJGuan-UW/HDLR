@@ -5,6 +5,7 @@ This is the R package for constructing one-step estimators with inference for hi
 Our goal is to construct an accurate and a precise $1-\alpha$ confidence interval for the case probability $P(Y=1 | X=x)$ for an input query vector $x$ using logistic regression models.
 
 Main paper reference
+
 license
 
 ## Installation guide
