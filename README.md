@@ -13,9 +13,9 @@ We are still packaging the code. It will be ready shortly.
 
 This R package has two main functions that corresponds to two similar ways to construct estimators:
 
-``HDLR_infer``: This is the original method, which constructs a bias-corrected estimator with a confidence interval on the case probability. See the [R script](/R/HDLR_infer.R) for details.
+``HDLR_infer``: This is the original method, which constructs a bias-corrected estimator with a confidence interval on the case probability. See the [R script](/R_package/R/HDLR_infer.R) for details.
 
-``HDLR_cf``: This corresponds to the cross-fitted one step estimator, which similarly constructs an estimator with a 95% confidence interval. See the [R script](/R/HDLR_cf.R) for details.
+``HDLR_cf``: This corresponds to the cross-fitted one step estimator, which similarly constructs an estimator with a 95% confidence interval. See the [R script](/R_package/R/HDLR_cf.R) for details.
 
 
 ## Some Demo for Running Our Package or Code
