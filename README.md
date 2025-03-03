@@ -23,9 +23,9 @@ This R package has two main functions that corresponds to two similar ways to co
 ```R
 # Open the source files before the package is ready
 require(MASS)
-setwd('R_package/R')
+setwd('R_package/R') # go to the folder of functions
 files.sources = list.files()
-sapply(files.sources, source)
+sapply(files.sources, source) # open all the files
 
 d = 200
 n = 180
