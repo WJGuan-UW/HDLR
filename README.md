@@ -23,8 +23,9 @@ This R package has two main functions that corresponds to two similar ways to co
 ```R
 # Open the source files before the package is ready
 require(MASS)
-source('HDLR_infer.R')
-source('HDLR_cf.R')
+setwd('R_package/R')
+files.sources = list.files()
+sapply(files.sources, source)
 
 d = 200
 n = 180
