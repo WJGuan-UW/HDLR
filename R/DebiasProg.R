@@ -2,6 +2,8 @@
 #'
 #' This function implements our proposed debiasing (primal) program that solves for
 #' the weights for correcting the Lasso pilot estimate.
+#' @name DebiasProg
+#' @keywords internal
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
@@ -11,7 +13,8 @@
 #'
 #' @return The estimated weights by our debiasing program, which is a n-dim vector.
 #'
-#' @export
+#' @author Wenjie Guan, \email{wg285@@cornell.edu}
+#'
 #' @importFrom CVXR Variable Minimize quad_form Problem psolve
 #'
 #' @examples
@@ -41,11 +44,11 @@
 #'   s_theta = 5
 #'   theta_0 = rep(0, d)
 #'   theta_0[1:s_theta] = sqrt(5)
-#'   
+#'
 #'   ## Generate the design matrix and outcomes
 #'   X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
 #'   Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
-#'   
+#'
 #'   ## Estimate the coefficient and intercept with logistic regression with L-1 penalty
 #'   lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
 #'                   standardize = F, intercept = T, nfolds = 5)
@@ -54,12 +57,10 @@
 #'                       standardize = F, intercept = T)
 #'   theta_hat = coef(lasso_pilot)[-1]
 #'   alpha_hat = coef(lasso_pilot)[1]
-#'   
+#'
 #'   ## Solve the debiasing weights
 #'   deb_res = DebiasProg(X_sim, x_cur, theta_hat, alpha_hat, gamma_n = 0.1)
 #' }
-
-
 library(CVXR)
 
 DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1) {
@@ -67,29 +68,29 @@ DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1)
   quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   w = Variable(rows = n, cols = 1)
   debias_obj = Minimize(quad_form(w, quad))
-  
+
   if (intercept==TRUE){
     constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
                        x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n,
                        1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) <= gamma_n / max(abs(x)),
                        1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) >= -gamma_n / max(abs(x)))
   }
-  
+
   if (intercept==FALSE){
     constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
                        x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n)
   }
-  
-  
+
+
   debias_prog = Problem(debias_obj, constraints)
-  
+
   tryCatch({
     res = psolve(debias_prog)
   }, error = function(e) {
     res = psolve(debias_prog, solver = "MOSEK", max_iters = 30000)
     # return(matrix(NA, nrow = n, ncol = 1))
   })
-  
+
   tryCatch({
     if(res$value == Inf) {
       message("The primal debiasing program is infeasible! Returning 'NA'...")

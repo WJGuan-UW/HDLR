@@ -1,5 +1,7 @@
 #' The soft-thresholding function
 #'
+#' @name SoftThres
+#' @keywords internal
 #' This function implements the soft-threshold operator
 #' \eqn{S_{\lambda}(x)=sign(x)\cdot (x-\lambda)_+}.
 #'
@@ -12,7 +14,6 @@
 #' a = c(1,2,4,6)
 #' SoftThres(theta=a, lamb=3)
 #'
-#' @export
 #'
 SoftThres = function(theta, lamb) {
   if (is.vector(theta)) {
@@ -27,6 +28,6 @@ SoftThres = function(theta, lamb) {
     # res[,1] <- abs(theta) - lamb
     res <- sign(theta) * apply(res, 1, max)
   }
-  
+
   return(res)
 }
