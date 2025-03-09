@@ -6,7 +6,7 @@ require(dplyr)
 
 DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1) {
   n = dim(X)[1]
-  quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
+  quad = diag(dlogis(X %*% theta_hat + alpha_hat)[,1])
   w = Variable(rows = n, cols = 1)
   debias_obj = Minimize(quad_form(w, quad))
   
@@ -49,17 +49,6 @@ DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1)
   })
 }
 
-invlogit = function(y){
-  # the inverse-logit function \vphi
-  return( 1 / (1 + exp(-y)) )
-}
-
-d.invlogit = function(y){
-  # calculate the derivative of the inverse-logit function
-  # which is also \vphi(1-\vphi)
-  return( 1 / (4*cosh(y/2)^2) )
-}
-
 DualObj <- function(X, x, theta_hat, alpha_hat, intercept=T, ll_cur, gamma_n = 0.05) {
   #' the dual objective function
   #' @param X The input design n*d matrix.
@@ -77,7 +66,7 @@ DualObj <- function(X, x, theta_hat, alpha_hat, intercept=T, ll_cur, gamma_n = 0
   }
   
   n = nrow(X)
-  quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
+  quad = diag(dlogis(X %*% theta_hat + alpha_hat)[,1])
   A = t(X2) %*% quad %*% X2
   obj = t(ll_cur) %*% A %*% ll_cur / (2 * n) + sum(x * ll_cur) + gamma_n * sum(abs(ll_cur))
   
@@ -95,7 +84,7 @@ DualCD = function(X, x, theta_hat=NULL, alpha_hat=NULL, gamma_n=0.05, intercept=
     if (is.null(alpha_hat)){
       alpha_hat = 0
     }
-    quad <- diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
+    quad <- diag(dlogis(X %*% theta_hat + alpha_hat)[,1])
   }
   
   if (intercept==FALSE){
@@ -323,15 +312,15 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
                          cv_fold = 5, cv_rule = cv_rule)
   
   ## Construct the 95% confidence intervals for the true regression function
-  m_deb = m_cur + sum(deb_res$w_obs * (Y_sim - invlogit(X_sim %*% theta_hat + alpha_hat))) / sqrt(n)
-  sigmas = d.invlogit(X_sim %*% theta_hat) 
+  m_deb = m_cur + sum(deb_res$w_obs * (Y_sim - plogis(X_sim %*% theta_hat + alpha_hat))) / sqrt(n)
+  sigmas = dlogis(X_sim %*% theta_hat) 
   asym_sd = sqrt(sum(sigmas * deb_res$w_obs^2) / n)
   
   return(list(m = m_deb,
               sd = asym_sd,
-              prob = invlogit(m_deb),
-              prob_lower = invlogit(m_deb - asym_sd*qnorm(1-0.05/2)),
-              prob_upper = invlogit(m_deb + asym_sd*qnorm(1-0.05/2)),
+              prob = plogis(m_deb),
+              prob_lower = plogis(m_deb - asym_sd*qnorm(1-0.05/2)),
+              prob_upper = plogis(m_deb + asym_sd*qnorm(1-0.05/2)),
               weights = as.vector(deb_res$w_obs),
               dual_weights = deb_res$ll_obs,
               m_pilot = m_cur))
@@ -395,8 +384,8 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
                            cv_fold = 5, cv_rule = cv_rule)
     
     ## Construct the 95% confidence intervals for the true regression function
-    sigmas = d.invlogit(X_sim[I2,] %*% theta_hat) # use Lasso instead of refitting
-    m_deb = m_cur + sum(deb_res$w_obs * (Y_sim[I2] - invlogit(X_sim[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
+    sigmas = dlogis(X_sim[I2,] %*% theta_hat) # use Lasso instead of refitting
+    m_deb = m_cur + sum(deb_res$w_obs * (Y_sim[I2] - plogis(X_sim[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
     asym_var = sum(deb_res$w_obs^2 * sigmas)
     
     results = rbind(results, list(k=k,
@@ -416,8 +405,8 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
   
   return(list(m = m_deb,
               sd = asym_sd,
-              prob = invlogit(m_deb),
-              prob_lower = invlogit(m_deb - asym_sd*qnorm(1-0.05/2)),
-              prob_upper = invlogit(m_deb + asym_sd*qnorm(1-0.05/2)),
+              prob = plogis(m_deb),
+              prob_lower = plogis(m_deb - asym_sd*qnorm(1-0.05/2)),
+              prob_upper = plogis(m_deb + asym_sd*qnorm(1-0.05/2)),
               m_pilot = m_cur))
 }

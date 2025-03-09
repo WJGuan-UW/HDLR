@@ -65,7 +65,7 @@ for (i in 0:3) {
   set.seed(runInd)
   
   X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-  Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
+  Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
   
   for (rule in c("1se", "mincv", "minfeas")){
     for (it in 1){
