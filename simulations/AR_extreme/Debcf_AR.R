@@ -38,7 +38,7 @@ theta_0[6:10] = -1
 # generate samples
 set.seed(runInd)
 X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
+Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
 
 # Consider different simulation settings
 for (i in 0:3) {

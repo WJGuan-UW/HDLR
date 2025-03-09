@@ -1,11 +1,6 @@
 library(glmnet)
 library(MASS)
 
-invlogit = function(y){
-  # the inverse-logit function \vphi
-  return( 1 / (1 + exp(-y)) )
-}
-
 # Read the argument passed in from the bash file
 runInd <- 1
 args <- commandArgs(TRUE)
@@ -42,7 +37,7 @@ theta_0[6:10] = -1
 set.seed(runInd)
 
 X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
+Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
 
 # oracle estimate
 oracle = which(theta_0 != 0)

@@ -2,11 +2,6 @@ library(glmnet)
 library(MASS)
 library(SIHR)
 
-invlogit = function(y){
-  # the inverse-logit function \vphi
-  return( 1 / (1 + exp(-y)) )
-}
-
 runInd <- 1
 args <- commandArgs(TRUE)
 for(i in 1:length(args)){
@@ -49,7 +44,7 @@ theta_0[6:10] = -1
 
 set.seed(runInd)
 X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + alpha_0))
+Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
 
 ## Lasso pilot estimator
 # lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
