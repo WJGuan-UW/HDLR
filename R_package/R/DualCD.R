@@ -74,7 +74,7 @@ DualCD = function(X, x, theta_hat=NULL, alpha_hat=NULL, gamma_n=0.05, intercept=
     if (is.null(alpha_hat)){
       alpha_hat = 0
     }
-    quad <- diag(dlogis(X %*% theta_hat + alpha_hat)[,1])
+    quad <- diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   }
 
   if (intercept==FALSE){

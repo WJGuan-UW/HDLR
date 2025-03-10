@@ -65,7 +65,7 @@ library(CVXR)
 
 DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1) {
   n = dim(X)[1]
-  quad = diag(dlogis(X %*% theta_hat + alpha_hat)[,1])
+  quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   w = Variable(rows = n, cols = 1)
   debias_obj = Minimize(quad_form(w, quad))
 
