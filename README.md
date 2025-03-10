@@ -71,7 +71,7 @@ cat("The 95% confidence interval yielded by our method is [",
     res$prob_lower, ", ",
     res$prob_upper, "].\n", sep = "")
 
-cat("The true probability is", invlogit(x %*% theta_0 + 0.2))
+cat("The true probability is", plogis(x %*% theta_0 + 0.2))
 ```
 
 Then we try the cross-fitting method: ``HDLR_cf``
@@ -81,7 +81,7 @@ cat("The 95% confidence interval yielded by cross-fitting is [",
     res_cf$prob_lower, ", ",
     res_cf$prob_upper, "].\n", sep = "")
 
-cat("The true probability is", invlogit(x %*% theta_0 + 0.2))
+cat("The true probability is", plogis(x %*% theta_0 + 0.2))
 ```
 
 ## References
