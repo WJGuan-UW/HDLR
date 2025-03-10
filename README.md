@@ -49,7 +49,7 @@ invlogit = function(y){
 ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
 set.seed(123)
 X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
-Y_sim = rbinom(n,size=1,prob=invlogit(X_sim %*% theta_0 + 0.2))
+Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
 
 ## Current query point
 x = rep(0, d)
