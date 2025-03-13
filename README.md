@@ -7,7 +7,11 @@ Our goal is to construct an accurate estimator and a precise $1-\alpha$ confiden
 
 ## Installation guide
 
-We are still packaging the code. It will be ready shortly.
+The development version can be installed from github:
+
+```R
+devtools::install_github("WJGuan-UW/HDLR", subdir = "R_Package")
+```
 
 ## Usage
 
