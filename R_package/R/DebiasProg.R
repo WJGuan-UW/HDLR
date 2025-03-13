@@ -19,50 +19,7 @@
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom stats rbinom plogis
 #'
-#' @examples
-#' \donttest{
-#'   require(MASS)
-#'   require(glmnet)
-#'   d = 1000
-#'   n = 900
 #'
-#'   Sigma = array(0, dim = c(d,d)) + diag(d)
-#'   rho = 0.1
-#'   for(i in 1:(d-1)){
-#'     for(j in (i+1):d){
-#'       if ((j < i+6) | (j > i+d-6)){
-#'         Sigma[i,j] = rho
-#'         Sigma[j,i] = rho
-#'       }
-#'     }
-#'   }
-#'
-#'   ## Current query point
-#'   x_cur = rep(0, d)
-#'   x_cur[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8)
-#'   x_cur = array(x_cur, dim = c(1,d))
-#'
-#'   ## True regression coefficient
-#'   s_theta = 5
-#'   theta_0 = rep(0, d)
-#'   theta_0[1:s_theta] = sqrt(5)
-#'
-#'   ## Generate the design matrix and outcomes
-#'   X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-#'   Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
-#'
-#'   ## Estimate the coefficient and intercept with logistic regression with L-1 penalty
-#'   lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1,
-#'                   type.measure = 'deviance', standardize = F, intercept = T, nfolds = 5)
-
-#'   lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1,
-#'                        lambda = lr1$lambda.min, standardize = F, intercept = T)
-#'   theta_hat = coef(lasso_pilot)[-1]
-#'   alpha_hat = coef(lasso_pilot)[1]
-#'
-#'   ## Solve the debiasing weights
-#'   deb_res = DebiasProg(X_sim, x_cur, theta_hat, alpha_hat, gamma_n = 0.1)
-#' }
 library(CVXR)
 
 DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1) {

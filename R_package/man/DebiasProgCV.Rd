@@ -37,57 +37,6 @@ A list that contains three elements.
 This function implements our proposed debiasing program that selects the tuning parameter
 "\eqn{\gamma/n}" by cross-validation and returns the final debiasing weights.
 }
-\examples{
-\donttest{
-  require(MASS)
-  require(glmnet)
-  d = 1000
-  n = 900
-
-  Sigma = array(0, dim = c(d,d)) + diag(d)
-  rho = 0.1
-  for(i in 1:(d-1)){
-    for(j in (i+1):d){
-      if ((j < i+6) | (j > i+d-6)){
-        Sigma[i,j] = rho
-        Sigma[j,i] = rho
-      }
-    }
-  }
-  sig = 1
-
-  ## Current query point
-  x_cur = rep(0, d)
-  x_cur[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8)
-  x_cur = array(x_cur, dim = c(1,d))
-
-  ## True regression coefficient
-  s_theta = 5
-  theta_0 = rep(0, d)
-  theta_0[1:s_beta] = sqrt(5)
-
-  ## Generate the design matrix and outcomes
-  X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
-  Y_sim = rbinom(n,size=1,prob=plogis(X_sim \%*\% theta_0 + alpha_0))
-
-  obs_prob = 1 / (1 + exp(-1 + X_sim[, 7] - X_sim[, 8]))
-  R_sim = rep(1, n)
-  R_sim[runif(n) >= obs_prob] = 0
-
-  ## Estimate the propensity scores via the Lasso-type generalized linear model
-  lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
-                  standardize = F, intercept = T, nfolds = 5)
-  lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
-                      standardize = F, intercept = T)
-  theta_hat = coef(lasso_pilot)[-1]
-  alpha_hat = coef(lasso_pilot)[1]
-
-  ## Estimate the debiasing weights with the tuning parameter selected by cross-validations.
-  deb_res = DebiasProgCV(X_sim, x_cur, theta_hat, alpha_hat, gamma_lst = c(0.1, 0.5, 1),
-                         cv_fold = 5, cv_rule = '1se')
-}
-
-}
 \author{
 Wenjie Guan, \email{wg285@cornell.edu}
 }

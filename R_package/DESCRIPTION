@@ -11,13 +11,13 @@ BugReports: https://github.com/WJGuan-UW/HDLR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Imports:
     stats,
     MASS,
     glmnet,
     CVXR,
     caret,
-    dplyr
+    dplyr,
+    Matrix
 Maintainer: Wenjie Guan <wg285@cornell.edu>, Yikun Zhang <yikunzhang@foxmail.com>
-
