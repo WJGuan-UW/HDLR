@@ -24,7 +24,7 @@
 #' \item{dual_weights}{The weights from the dual program, which is a d-dimensional vector if intercept==FALSE and a (d+1)-dimensional vector if intercept==TRUE.}
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
-#' @importFrom stats rbinom plogis dlogis qnorm binomial coef glm
+#' @importFrom stats rbinom plogis dlogis qnorm
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom dplyr summarise
 #' @importFrom Matrix sparseVector
@@ -73,6 +73,9 @@ require(dplyr)
 
 HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
                       nfolds=5, refitting=TRUE, intercept=FALSE, level=0.95){
+  n = nrow(X)
+  d = ncol(X)
+
   x = array(x, dim = c(1,length(x)))
   # Lasso pilot estimate
   lr1 = cv.glmnet(X, Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',

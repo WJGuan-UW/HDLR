@@ -72,6 +72,9 @@ require(MASS)
 
 HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
                    nfolds=5, refitting=TRUE, intercept=FALSE, level=0.95){
+  n = nrow(X)
+  d = ncol(X)
+
   x = array(x, dim = c(1, length(x)))
 
   results = data.frame()
