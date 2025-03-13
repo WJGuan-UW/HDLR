@@ -25,11 +25,8 @@
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr summarise
-#'
+#' 
 #' @examples
-#' \donttest{
-#' require(MASS)
-#' require(dplyr)
 #' d = 200
 #' n = 180
 #' Sigma = array(0, dim = c(d,d)) + diag(d)
@@ -42,27 +39,25 @@
 #'   }
 #' }
 #'
-#' ## True regression coefficient
-#' s_beta = 5
-#' theta_0 = rep(0, d)
-#' theta_0[1:s_beta] = sqrt(5)
-#'
 #' ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
 #' set.seed(123)
 #' X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
 #' Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
 #'
-#' ## Current query point
-#' x = rep(0, d)
+#' ## Current query pointx = rep(0, d)
 #' x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
 #'
-#' res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=FALSE, intercept=TRUE)
+#' ## True regression coefficient
+#' s_beta = 5
+#' theta_0 = rep(0, d)
+#' theta_0[1:s_beta] = sqrt(5)
+#'
+#' res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
 #' cat("The 95% confidence interval yielded by cross-fitting is [",
 #'     res_cf$prob_lower, ", ",
 #'     res_cf$prob_upper, "].\n", sep = "")
 #'
 #' cat("The true probability is", plogis(x %*% theta_0 + 0.2))
-#' }
 #'
 #' @export
 
