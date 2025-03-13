@@ -9,6 +9,7 @@
 #' @return The dual objective
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
+#' @importFrom stats dlogis
 #'
 DualObj <- function(X, x, theta_hat, alpha_hat, intercept=T, ll_cur, gamma_n = 0.05) {
 

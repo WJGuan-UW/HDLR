@@ -21,8 +21,15 @@
 #' \item{m_pilot}{The Lasso pilot estimate for the log-odds.}
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
+#' @importFrom stats rbinom plogis dlogis qnorm
+#' @importFrom glmnet cv.glmnet glmnet
+#' @importFrom MASS mvrnorm
+#' @importFrom dplyr summarise
 #'
 #' @examples
+#' \donttest{
+#' require(MASS)
+#' require(dplyr)
 #' d = 200
 #' n = 180
 #' Sigma = array(0, dim = c(d,d)) + diag(d)
@@ -35,25 +42,27 @@
 #'   }
 #' }
 #'
-#' ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
-#' set.seed(123)
-#' X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
-#' Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
-#'
-#' ## Current query pointx = rep(0, d)
-#' x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
-#'
 #' ## True regression coefficient
 #' s_beta = 5
 #' theta_0 = rep(0, d)
 #' theta_0[1:s_beta] = sqrt(5)
 #'
-#' res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
+#' ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
+#' set.seed(123)
+#' X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
+#' Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
+#'
+#' ## Current query point
+#' x = rep(0, d)
+#' x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
+#'
+#' res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=FALSE, intercept=TRUE)
 #' cat("The 95% confidence interval yielded by cross-fitting is [",
 #'     res_cf$prob_lower, ", ",
 #'     res_cf$prob_upper, "].\n", sep = "")
 #'
 #' cat("The true probability is", plogis(x %*% theta_0 + 0.2))
+#' }
 #'
 #' @export
 
@@ -77,10 +86,10 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
       I2 = which(group==1)
     }
 
-    lr1 = cv.glmnet(X_sim[I1,], Y_sim[I1], family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+    lr1 = cv.glmnet(X[I1,], Y[I1], family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
                     standardize = F, intercept = T, nfolds = 5)
 
-    lasso_pilot = glmnet(X_sim[I1,], Y_sim[I1], family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
+    lasso_pilot = glmnet(X[I1,], Y[I1], family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
                          standardize = F, intercept = T)
     theta_hat = coef(lasso_pilot)[-1]
     alpha_hat = coef(lasso_pilot)[1]
@@ -94,13 +103,13 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
       theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
 
       # Avoid overfitting
-      while (mean(sign(X_sim[I1,] %*% theta_refit + alpha_refit) == 2 * Y_sim[I1] - 1) == 1){
+      while (mean(sign(X[I1,] %*% theta_refit + alpha_refit) == 2 * Y[I1] - 1) == 1){
         # randomly drop a feature until the data is not seperable given the remaining features
         drop_var = sample(selected_var, size = 1)
         theta_refit[drop_var] = 0
         selected_var = theta_refit@i
 
-        lasso_refit = glm(Y_sim[I1] ~ X_sim[I1,selected_var], family = binomial(link = 'logit'),
+        lasso_refit = glm(Y[I1] ~ X[I1,selected_var], family = binomial(link = 'logit'),
                           control = list(epsilon = 1e-4))
         theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
         alpha_refit = coef(lasso_refit)[1]
@@ -119,8 +128,8 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
                            cv_fold = 5, cv_rule = cv_rule)
 
     ## Construct the 95% confidence intervals for the true regression function
-    sigmas = dlogis(X_sim[I2,] %*% theta_hat) # use Lasso instead of refitting
-    m_deb = m_cur + sum(deb_res$w_obs * (Y_sim[I2] - plogis(X_sim[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
+    sigmas = dlogis(X[I2,] %*% theta_hat) # use Lasso instead of refitting
+    m_deb = m_cur + sum(deb_res$w_obs * (Y[I2] - plogis(X[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
     asym_var = sum(deb_res$w_obs^2 * sigmas)
 
     results = rbind(results, list(k=k,
