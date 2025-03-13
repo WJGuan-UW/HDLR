@@ -10,7 +10,7 @@
 
 \item{x}{The current query point, which is a vector.}
 
-\item{n_gamma}{Number of choices for the regularization parameter \gamma_n.}
+\item{n_gamma}{Number of choices for the regularization parameter \eqn{\gamma/n}.}
 
 \item{nfolds}{Number of folds in cross validation.}
 

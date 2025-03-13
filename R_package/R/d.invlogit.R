@@ -1,6 +1,6 @@
 #' the derivative of the sigmoid (inverse logit) function
 #' @name d.invlogit
-#' @keywords internal
+#'
 #' @param y an array containing values.
 #' @return The derivative at y.
 #'

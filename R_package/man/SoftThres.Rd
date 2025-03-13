@@ -15,7 +15,8 @@ SoftThres(theta, lamb)
 The resulting vector after soft-thresholding.
 }
 \description{
-The soft-thresholding function
+This function implements the soft-threshold operator
+\eqn{S_{\lambda}(x)=sign(x)\cdot (x-\lambda)_+}.
 }
 \examples{
 a = c(1,2,4,6)
@@ -23,12 +24,3 @@ SoftThres(theta=a, lamb=3)
 
 
 }
-\keyword{(x-\lambda)_+}.}
-\keyword{This}
-\keyword{\eqn{S_{\lambda}(x)=sign(x)\cdot}
-\keyword{function}
-\keyword{implements}
-\keyword{internal}
-\keyword{operator}
-\keyword{soft-threshold}
-\keyword{the}

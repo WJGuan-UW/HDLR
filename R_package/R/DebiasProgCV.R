@@ -4,7 +4,6 @@
 #' "\eqn{\gamma/n}" by cross-validation and returns the final debiasing weights.
 #'
 #' @name DebiasProgCV
-#' @keywords internal
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
