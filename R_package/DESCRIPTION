@@ -1,12 +1,22 @@
 Package: HDLR
 Type: Package
-Title: Efficient Inference on High dimensional logistic regression
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Efficient Inference on High-Dimensional Logistic Regression
+Version: 0.1
+Authors@R: c(
+    person("Wenjie", "Guan", email = "wg285@cornell.edu", role = c("aut", "cre")),
+    person("Yikun", "Zhang", email = "yikunzhang@foxmail.com", role = c("aut"), comment = c(ORCID = "0000-0003-3905-6346")))
+Description: An efficient inference procedure for high-dimensional logistic regression models (including conditional log odds ratio and conditional case probabilities).
+URL: https://github.com/WJGuan-UW/HDLR/
+BugReports: https://github.com/WJGuan-UW/HDLR/issues
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+    MASS,
+    glmnet,
+    CVXR,
+    caret,
+    dplyr
+Maintainer: Wenjie Guan <wg285@cornell.edu>, Yikun Zhang <yikunzhang@foxmail.com>
+
