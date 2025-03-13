@@ -8,6 +8,11 @@
 #'
 #' @return The resulting vector after soft-thresholding.
 #'
+#' @examples
+#' a = c(1,2,4,6)
+#' SoftThres(theta=a, lamb=3)
+#'
+#'
 SoftThres = function(theta, lamb) {
   if (is.vector(theta)) {
     if (length(theta) > 1) {

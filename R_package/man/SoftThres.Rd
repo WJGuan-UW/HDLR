@@ -18,3 +18,9 @@ The resulting vector after soft-thresholding.
 This function implements the soft-threshold operator
 \eqn{S_{\lambda}(x)=sign(x)\cdot (x-\lambda)_+}.
 }
+\examples{
+a = c(1,2,4,6)
+SoftThres(theta=a, lamb=3)
+
+
+}

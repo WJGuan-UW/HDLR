@@ -3,9 +3,7 @@
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
-#' @param theta_hat The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array
-#' @param alpha_hat ????WJ
-#' @param intercept ????WJ
+#' @param theta.hat The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array
 #' @param ll_cur The current value of the dual solution vector.
 #' @param gamma_n The regularization parameter "\eqn{\gamma/n}". (Default: gamma_n=0.1.)
 #' @return The dual objective

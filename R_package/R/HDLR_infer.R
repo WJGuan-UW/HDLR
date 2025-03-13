@@ -24,14 +24,11 @@
 #' \item{dual_weights}{The weights from the dual program, which is a d-dimensional vector if intercept==FALSE and a (d+1)-dimensional vector if intercept==TRUE.}
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
-#' @importFrom stats rbinom plogis dlogis qnorm binomial coef glm
+#' @importFrom stats rbinom plogis dlogis qnorm
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom dplyr summarise
-#' @importFrom Matrix sparseVector
 #'
 #' @examples
-#' \donttest{
-#' require(MASS)
 #' d = 200
 #' n = 180
 #' Sigma = array(0, dim = c(d,d)) + diag(d)
@@ -44,27 +41,25 @@
 #'   }
 #' }
 #'
-#' ## True regression coefficient
-#' s_beta = 5
-#' theta_0 = rep(0, d)
-#' theta_0[1:s_beta] = sqrt(5)
-#'
 #' ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
 #' set.seed(123)
 #' X_sim = mvrnorm(n, mu = rep(0, d), Sigma) / 5
 #' Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
 #'
-#' ## Current query point
-#' x = rep(0, d)
+#' ## Current query pointx = rep(0, d)
 #' x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
 #'
-#' res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=FALSE, intercept=TRUE)
+#' ## True regression coefficient
+#' s_beta = 5
+#' theta_0 = rep(0, d)
+#' theta_0[1:s_beta] = sqrt(5)
+#'
+#' res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
 #' cat("The 95% confidence interval yielded by our method is [",
 #'     res$prob_lower, ", ",
 #'     res$prob_upper, "].\n", sep = "")
 #'
 #' cat("The true probability is", plogis(x %*% theta_0 + 0.2))
-#' }
 #'
 #' @export
 
@@ -73,12 +68,14 @@ require(dplyr)
 
 HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
                       nfolds=5, refitting=TRUE, intercept=FALSE, level=0.95){
+  n = nrow(X)
+  d = ncol(X)
   x = array(x, dim = c(1,length(x)))
   # Lasso pilot estimate
   lr1 = cv.glmnet(X, Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
                     intercept = T, nfolds = nfolds)
   lasso_pilot = glmnet(X, Y, family = binomial(link = 'logit'), alpha = 1,
-                       lambda = lr1$lambda.min, standardize = F, intercept = T)
+                       lambda = lr1$lambda.min, tandardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
   m_cur = (x %*% theta_hat)[1,1] + alpha_hat
