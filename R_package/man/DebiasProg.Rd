@@ -54,10 +54,10 @@ the weights for correcting the Lasso pilot estimate.
   Y_sim = rbinom(n,size=1,prob=plogis(X_sim \%*\% theta_0 + alpha_0))
 
   ## Estimate the coefficient and intercept with logistic regression with L-1 penalty
-  lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
-                  standardize = F, intercept = T, nfolds = 5)
-  lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
-                      standardize = F, intercept = T)
+  lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1,
+                  type.measure = 'deviance', standardize = F, intercept = T, nfolds = 5)
+  lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1,
+                       lambda = lr1$lambda.min, standardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
 
@@ -68,4 +68,3 @@ the weights for correcting the Lasso pilot estimate.
 \author{
 Wenjie Guan, \email{wg285@cornell.edu}
 }
-\keyword{internal}

@@ -1,6 +1,6 @@
 #' the dual objective function
 #' @name DualObj
-#' @keywords internal
+#'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
 #' @param theta.hat The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array

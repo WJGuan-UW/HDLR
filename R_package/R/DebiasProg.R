@@ -3,7 +3,6 @@
 #' This function implements our proposed debiasing (primal) program that solves for
 #' the weights for correcting the Lasso pilot estimate.
 #' @name DebiasProg
-#' @keywords internal
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
@@ -50,11 +49,11 @@
 #'   Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
 #'
 #'   ## Estimate the coefficient and intercept with logistic regression with L-1 penalty
-#'   lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
-#'                   standardize = F, intercept = T, nfolds = 5)
+#'   lr1 = cv.glmnet(X_sim, Y_sim, family = binomial(link='logit'), alpha = 1,
+#'                   type.measure = 'deviance', standardize = F, intercept = T, nfolds = 5)
 
-#'   lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1, lambda = lr1$lambda.min,
-#'                       standardize = F, intercept = T)
+#'   lasso_pilot = glmnet(X_sim, Y_sim, family = binomial(link = 'logit'), alpha = 1,
+#'                        lambda = lr1$lambda.min, standardize = F, intercept = T)
 #'   theta_hat = coef(lasso_pilot)[-1]
 #'   alpha_hat = coef(lasso_pilot)[1]
 #'

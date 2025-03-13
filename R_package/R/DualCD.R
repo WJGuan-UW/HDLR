@@ -4,7 +4,6 @@
 #' dual program. More details can be found in Appendix A of our paper.
 #'
 #' @name DualCD
-#' @keywords internal
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.

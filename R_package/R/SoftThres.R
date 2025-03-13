@@ -1,7 +1,5 @@
 #' The soft-thresholding function
 #'
-#' @name SoftThres
-#' @keywords internal
 #' This function implements the soft-threshold operator
 #' \eqn{S_{\lambda}(x)=sign(x)\cdot (x-\lambda)_+}.
 #'

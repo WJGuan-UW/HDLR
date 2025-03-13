@@ -4,7 +4,7 @@
 #' @param X The input design n*d matrix.
 #' @param Y The outcome variable, which is a n-dimensional vector.
 #' @param x The current query point, which is a vector.
-#' @param n_gamma Number of choices for the regularization parameter \gamma_n.
+#' @param n_gamma Number of choices for the regularization parameter \eqn{\gamma/n}.
 #' @param nfolds Number of folds in cross validation.
 #' @param cv_rule Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'.
 #' @param refitting A boolean variable which indicates whether to refit on the Lasso support. Default is TRUE.

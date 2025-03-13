@@ -10,7 +10,7 @@
 
 \item{x}{The current query point, which is a vector.}
 
-\item{n_gamma}{Number of choices for the regularization parameter \gamma_n.}
+\item{n_gamma}{Number of choices for the regularization parameter \eqn{\gamma/n}.}
 
 \item{nfolds}{Number of folds in cross validation.}
 
@@ -26,7 +26,7 @@
 A list that contains the following elements.
 \item{m}{The debiasing estimator for the log-odds, which is the inner product of x and coefficient.}
 \item{sd}{The standard deviation for m.}
-\item{prob}{The case probability 1 / (1 + exp(-m)).}
+\item{prob}{The case probability \eqn{1 / (1 + exp(-m))}.}
 \item{prob_upper}{The upper limit of the confidence interval for the case probability.}
 \item{prob_lower}{The lower limit of the confidence interval for the case probability.}
 \item{level}{The confidence level.}

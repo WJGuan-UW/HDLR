@@ -26,4 +26,3 @@ the dual objective function
 \author{
 Wenjie Guan, \email{wg285@cornell.edu}
 }
-\keyword{internal}

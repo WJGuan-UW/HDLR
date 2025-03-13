@@ -18,4 +18,3 @@ the derivative of the sigmoid (inverse logit) function
 \author{
 Wenjie Guan, \email{wg285@cornell.edu}
 }
-\keyword{internal}
