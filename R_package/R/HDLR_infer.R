@@ -78,7 +78,7 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
   lr1 = cv.glmnet(X, Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
                     intercept = T, nfolds = nfolds)
   lasso_pilot = glmnet(X, Y, family = binomial(link = 'logit'), alpha = 1,
-                       lambda = lr1$lambda.min, tandardize = F, intercept = T)
+                       lambda = lr1$lambda.min, standardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
   m_cur = (x %*% theta_hat)[1,1] + alpha_hat

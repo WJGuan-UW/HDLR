@@ -11,11 +11,15 @@ DualObj(X, x, theta_hat, alpha_hat, intercept = T, ll_cur, gamma_n = 0.05)
 
 \item{x}{The current query point, which is a 1*d array.}
 
+\item{theta_hat}{The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array}
+
+\item{alpha_hat}{????WJ}
+
+\item{intercept}{????WJ}
+
 \item{ll_cur}{The current value of the dual solution vector.}
 
 \item{gamma_n}{The regularization parameter "\eqn{\gamma/n}". (Default: gamma_n=0.1.)}
-
-\item{theta.hat}{The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array}
 }
 \value{
 The dual objective

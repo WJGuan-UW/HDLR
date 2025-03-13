@@ -7,8 +7,10 @@
 #'
 #' @param X The input design n*d matrix.
 #' @param x The current query point, which is a 1*d array.
-#' @param theta.hat The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array
+#' @param theta_hat The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array.
+#' @param alpha_hat ????WJ
 #' @param gamma_n The regularization parameter "\eqn{\gamma/n}". (Default: gamma_n=0.05.)
+#' @param intercept ????WJ
 #' @param ll_init The initial value of the dual solution vector. (Default: ll_init=NULL. Then, the vector with all-one entries is used.)
 #' @param eps The tolerance value for convergence. (Default: eps=1e-9.)
 #' @param max_iter The maximum number of coordinate descent iterations. (Default: max_iter=5000.)
