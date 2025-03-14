@@ -31,8 +31,8 @@ setwd('R_package/R') # go to the folder of functions
 files.sources = list.files()
 sapply(files.sources, source) # open all the files
 
-d = 200
-n = 180
+d = 1000
+n = 900
 
 Sigma = array(0, dim = c(d,d)) + diag(d)
 rho = 0.1
