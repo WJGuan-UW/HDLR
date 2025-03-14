@@ -6,7 +6,7 @@
 #' @param x The current query point, which is a vector.
 #' @param n_gamma Number of choices for the regularization parameter \eqn{\gamma/n}.
 #' @param nfolds Number of folds in cross validation.
-#' @param cv_rule Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'.
+#' @param cv_rule Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'. Default is '1se'.
 #' @param refitting A boolean variable which indicates whether to refit on the Lasso support. Default is TRUE.
 #' @param intercept A boolean variable which indicates whether to debias the intercept. Default is FALSE.
 #' @param level The confidence level of the confidence interval. Default is 0.95.
@@ -21,7 +21,7 @@
 #' \item{m_pilot}{The Lasso pilot estimate for the log-odds.}
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
-#' @importFrom stats rbinom plogis dlogis qnorm
+#' @importFrom stats rbinom plogis dlogis qnorm binomial coef glm
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr summarise
@@ -96,6 +96,9 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
                          standardize = F, intercept = T)
     theta_hat = coef(lasso_pilot)[-1]
     alpha_hat = coef(lasso_pilot)[1]
+    if (sum(theta_hat != 0) == 0){
+      warning('The Lasso pilot estimate selected a null model! Results may be unreliable.')
+    }
     m_cur = (x %*% theta_hat)[1,1] + alpha_hat
 
     if (refitting==TRUE){
@@ -134,9 +137,10 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
     sigmas = dlogis(X[I2,] %*% theta_hat) # use Lasso instead of refitting
     m_deb = m_cur + sum(deb_res$w_obs * (Y[I2] - plogis(X[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
     asym_var = sum(deb_res$w_obs^2 * sigmas)
+    rate = length(I2 / n)
 
     results = rbind(results, list(k=k,
-                                  rate=length(I2) / n,
+                                  rate=rate,
                                   m_deb=m_deb,
                                   m_cur=m_cur,
                                   asym_var=asym_var))

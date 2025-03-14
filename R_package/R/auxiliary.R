@@ -12,12 +12,12 @@ d.invlogit = function(y){
 
 #' robust mean function
 #' @name robust_mean
-#' 
+#'
 #' @param v an array
 #' @return The mean of v excluding the maximum and minimum
-#' 
+#'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
-#' 
+#'
 robust_mean = function(v){
   mean(v[-c(which.min(v), which.max(v))], na.rm = F)
 }

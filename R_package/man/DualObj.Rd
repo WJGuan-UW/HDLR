@@ -13,9 +13,9 @@ DualObj(X, x, theta_hat, alpha_hat, intercept = T, ll_cur, gamma_n = 0.05)
 
 \item{theta_hat}{The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array}
 
-\item{alpha_hat}{????WJ}
+\item{alpha_hat}{The Lasso pilot estimator of the coefficient, which is a real number.}
 
-\item{intercept}{????WJ}
+\item{intercept}{A boolean variable indicating whether we need to debias the intercept.}
 
 \item{ll_cur}{The current value of the dual solution vector.}
 
