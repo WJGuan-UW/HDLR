@@ -21,13 +21,13 @@ DualCD(
 
 \item{x}{The current query point, which is a 1*d array.}
 
-\item{theta_hat}{The Lasso pilot estimator of high-dimensional logistic regression, which as a 1*d array.}
+\item{theta_hat}{The Lasso pilot estimator of high-dimensional logistic regression, which is a 1*d array.}
 
-\item{alpha_hat}{????WJ}
+\item{alpha_hat}{The Lasso pilot estimator of the coefficient, which is a real number.}
 
 \item{gamma_n}{The regularization parameter "\eqn{\gamma/n}". (Default: gamma_n=0.05.)}
 
-\item{intercept}{????WJ}
+\item{intercept}{A boolean variable indicating whether we need to debias the intercept.}
 
 \item{ll_init}{The initial value of the dual solution vector. (Default: ll_init=NULL. Then, the vector with all-one entries is used.)}
 

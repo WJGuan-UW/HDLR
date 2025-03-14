@@ -14,7 +14,7 @@
 
 \item{nfolds}{Number of folds in cross validation.}
 
-\item{cv_rule}{Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'.}
+\item{cv_rule}{Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'. Default is '1se'.}
 
 \item{refitting}{A boolean variable which indicates whether to refit on the Lasso support. Default is TRUE.}
 

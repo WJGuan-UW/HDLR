@@ -7,7 +7,11 @@ Our goal is to construct an accurate estimator and a precise $1-\alpha$ confiden
 
 ## Installation guide
 
-We are still packaging the code. It will be ready shortly.
+The development version can be installed from github:
+
+```R
+devtools::install_github("WJGuan-UW/HDLR", subdir = "R_Package")
+```
 
 ## Usage
 
@@ -27,8 +31,8 @@ setwd('R_package/R') # go to the folder of functions
 files.sources = list.files()
 sapply(files.sources, source) # open all the files
 
-d = 200
-n = 180
+d = 1000
+n = 900
 
 Sigma = array(0, dim = c(d,d)) + diag(d)
 rho = 0.1
@@ -65,7 +69,7 @@ theta_0[1:s_beta] = sqrt(5)
 
 We first try the original method: ``HDLR_infer``
 ```R
-res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
+res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=T)
 
 cat("The 95% confidence interval yielded by our method is [",
     res$prob_lower, ", ",
@@ -76,7 +80,7 @@ cat("The true probability is", plogis(x %*% theta_0 + 0.2))
 
 Then we try the cross-fitting method: ``HDLR_cf``
 ```R
-res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=F, intercept=F)
+res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=T)
 cat("The 95% confidence interval yielded by cross-fitting is [",
     res_cf$prob_lower, ", ",
     res_cf$prob_upper, "].\n", sep = "")

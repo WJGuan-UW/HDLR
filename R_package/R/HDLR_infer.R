@@ -6,7 +6,7 @@
 #' @param x The current query point, which is a vector.
 #' @param n_gamma Number of choices for the regularization parameter \eqn{\gamma/n}.
 #' @param nfolds Number of folds in cross validation.
-#' @param cv_rule Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'.
+#' @param cv_rule Cross validation rule, candidate choices are '1se', 'mincv' and 'minfeas'. Default is '1se'.
 #' @param refitting A boolean variable which indicates whether to refit on the Lasso support. Default is TRUE.
 #' @param intercept A boolean variable which indicates whether to debias the intercept. Default is FALSE.
 #' @param level The confidence level of the confidence interval. Default is 0.95.
@@ -84,6 +84,9 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
                        lambda = lr1$lambda.min, standardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
+  if (sum(theta_hat != 0) == 0){
+    warning('The Lasso pilot estimate selected a null model! Results may be unreliable.')
+  }
   m_cur = (x %*% theta_hat)[1,1] + alpha_hat
 
   if (refitting==TRUE){
