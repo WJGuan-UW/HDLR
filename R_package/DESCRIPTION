@@ -19,5 +19,6 @@ Imports:
     CVXR,
     caret,
     dplyr,
-    Matrix
+    Matrix,
+    magrittr
 Maintainer: Wenjie Guan <wg285@cornell.edu>, Yikun Zhang <yikunzhang@foxmail.com>
