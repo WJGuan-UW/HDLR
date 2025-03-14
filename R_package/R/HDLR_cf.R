@@ -25,6 +25,7 @@
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom MASS mvrnorm
 #' @importFrom dplyr summarise
+#' @importFrom magrittr %>%
 #'
 #' @examples
 #' \donttest{

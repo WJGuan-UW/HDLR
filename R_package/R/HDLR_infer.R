@@ -24,7 +24,7 @@
 #' \item{dual_weights}{The weights from the dual program, which is a d-dimensional vector if intercept==FALSE and a (d+1)-dimensional vector if intercept==TRUE.}
 #'
 #' @author Wenjie Guan, \email{wg285@@cornell.edu}
-#' @importFrom stats rbinom plogis dlogis qnorm
+#' @importFrom stats rbinom plogis dlogis qnorm binomial coef glm
 #' @importFrom glmnet cv.glmnet glmnet
 #' @importFrom dplyr summarise
 #' @importFrom Matrix sparseVector
