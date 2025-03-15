@@ -21,4 +21,4 @@ Imports:
     dplyr,
     Matrix,
     magrittr
-Maintainer: Wenjie Guan <wg285@cornell.edu>, Yikun Zhang <yikunzhang@foxmail.com>
+Maintainer: Wenjie Guan <wg285@cornell.edu>
