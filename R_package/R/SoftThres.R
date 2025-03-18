@@ -21,6 +21,6 @@ SoftThres = function(theta, lamb) {
     # res[,1] <- abs(theta) - lamb
     res <- sign(theta) * apply(res, 1, max)
   }
-
+  
   return(res)
 }

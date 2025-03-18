@@ -42,51 +42,51 @@ DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, int
   if (is.null(gamma_lst)) {
     gamma_lst = seq(0, max(abs(x)), length.out = 41)[-1]
   }
-
+  
   kf = createFolds(1:n, cv_fold, list = FALSE, returnTrain = TRUE)
   dual_loss = matrix(0, nrow = cv_fold, ncol = length(gamma_lst))
   f_ind = 1
-
+  
   for (fold in 1:cv_fold) {
     train_ind <- (kf != fold)
     test_ind <- (kf == fold)
     X_train <- X[train_ind, ]
     X_test <- X[test_ind, ]
-
+    
     for (j in 1:length(gamma_lst)) {
-      w_train = DebiasProg(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat,
+      w_train = DebiasProg(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
                            intercept = intercept, gamma_n = gamma_lst[j])
-
+      
       if (any(is.na(w_train))) {
         message(paste("The primal debiasing program for this fold of the data is not feasible when gamma=", round(gamma_lst[j], 4), "!\n"))
         dual_loss[f_ind, j] = NA
       } else {
-        ll_train = DualCD(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat,
+        ll_train = DualCD(X = X_train, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
                           intercept = intercept, gamma_n = gamma_lst[j], ll_init = NULL, eps = 1e-5, max_iter = 5000)
-
+        
         if (intercept==TRUE){
           X_tr2 = cbind(1, X_train)
         }
-
+        
         if (intercept==FALSE){
           X_tr2 = X_train
         }
-
+        
         if (sum(abs(w_train + drop(X_tr2 %*% ll_train) / sqrt(dim(X_tr2)[1])) > 1/sqrt(n)) > 0) {
           warning(paste("The strong duality between primal and dual programs does not satisfy when gamma=", round(gamma_lst[j], 4), "!\n"))
           #dual_loss[f_ind, j] = NA
         } #else {
-          #dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat,
-          #                              ll_cur = ll_train, intercept = intercept, gamma_n = gamma_lst[j])
+        #dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
+        #                              ll_cur = ll_train, intercept = intercept, gamma_n = gamma_lst[j])
         #}
-        dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat,
+        dual_loss[f_ind, j] = DualObj(X_test, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, 
                                       ll_cur = ll_train, intercept = intercept, gamma_n = gamma_lst[j])
       }
     }
-
+    
     f_ind = f_ind + 1
   }
-
+  
   if (robust == TRUE){
     mean_dual_loss = apply(dual_loss, 2, robust_mean)
     std_dual_loss = apply(dual_loss, 2, function(x){sd(x, na.rm = FALSE)}) / sqrt(cv_fold)
@@ -94,7 +94,7 @@ DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, int
     mean_dual_loss = apply(dual_loss, 2, mean, na.rm = FALSE)
     std_dual_loss = apply(dual_loss, 2, function(x){sd(x, na.rm = FALSE)}) / sqrt(cv_fold)
   }
-
+  
   if (cv_rule == "mincv") {
     gamma_n_opt = gamma_lst[which.min(mean_dual_loss)]
   }
@@ -110,9 +110,9 @@ DebiasProgCV = function(X, x, theta_hat, alpha_hat = NULL, gamma_lst = NULL, int
   if (cv_rule == "minfeas") {
     gamma_n_opt = min(gamma_lst[!is.na(mean_dual_loss)])
   }
-
+  
   w_obs = DebiasProg(X = X, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_n_opt)
   ll_obs = DualCD(X = X, x = x, theta_hat = theta_hat, alpha_hat = alpha_hat, gamma_n = gamma_n_opt, ll_init = NULL, eps = 1e-9)
-
+  
   return(list(w_obs = w_obs, ll_obs = ll_obs, gamma_n_opt = gamma_n_opt, dual_loss = dual_loss))
 }

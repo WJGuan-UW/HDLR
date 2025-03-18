@@ -27,29 +27,29 @@ DebiasProg = function(X, x, alpha_hat, theta_hat, intercept=TRUE, gamma_n = 0.1)
   quad = diag(d.invlogit(X %*% theta_hat + alpha_hat)[,1])
   w = Variable(rows = n, cols = 1)
   debias_obj = Minimize(quad_form(w, quad))
-
+  
   if (intercept==TRUE){
     constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
                        x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n,
                        1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) <= gamma_n / max(abs(x)),
                        1 - (1/sqrt(n))*(t(w) %*% quad %*% rep(1, n)) >= -gamma_n / max(abs(x)))
   }
-
+  
   if (intercept==FALSE){
     constraints = list(x - (1/sqrt(n))*(t(w) %*% quad %*% X) <= gamma_n,
                        x - (1/sqrt(n))*(t(w) %*% quad %*% X) >= -gamma_n)
   }
-
-
+  
+  
   debias_prog = Problem(debias_obj, constraints)
-
+  
   tryCatch({
     res = psolve(debias_prog)
   }, error = function(e) {
     res = psolve(debias_prog, solver = "MOSEK", max_iters = 30000)
     # return(matrix(NA, nrow = n, ncol = 1))
   })
-
+  
   tryCatch({
     if(res$value == Inf) {
       message("The primal debiasing program is infeasible! Returning 'NA'...")
