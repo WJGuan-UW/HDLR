@@ -1,5 +1,6 @@
 library(MASS)
 source("./debias_prog.R")
+library(HDLR)
 
 #### Ver: Nov 13
 #### Cross-fitted estimators
@@ -53,38 +54,38 @@ for (i in 0:3) {
     x = x * (-1) ^ seq(0, d-1, 1)
     x = 0.2 * x / norm(x, "2")
   }
-  
+
   theta_0 = rep(0, d)
   theta_0[1:5] = 2
   theta_0[6:10] = -1
-    
+
   cat(paste0("i=",i,"\n"))
   # True regression function
   x = array(x, dim = c(1,d)) # decrease the magnitude of x to align with the simulated sample
   m_true = sum(x * theta_0) + alpha_0
   # print(m_true)
   set.seed(runInd)
-  
+
   X_sim = mvrnorm(n, mu = rep(0, d), Sigma)
   Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + alpha_0))
-  
+
   for (rule in c("1se", "mincv", "minfeas")){
     for (it in 1){
       tryCatch({
-        res = HDLR_cf(X_sim, Y_sim, x, n_gamma=50, cv_rule=rule, refitting=T, intercept=it)
+        res = HDLR_cf(X_sim, Y_sim, x, n_gamma=10, cv_rule=rule, refitting=T, intercept=it)
         debias_res = data.frame(m_cur = res$m_pilot, m_deb = res$m, asym_sd = res$sd, intercept = it, rule=rule)
-        write.csv(debias_res, paste0("./debiascf_res_AR/Debiascf_AR_cov_d", d, "_n", n, "_", 
-                                     runInd, "_x", i, "_rule", rule, "_intercept", it, ".csv"), 
+        write.csv(debias_res, paste0("./debiascf_res_AR/Debiascf_AR_cov_d", d, "_n", n, "_",
+                                     runInd, "_x", i, "_rule", rule, "_intercept", it, ".csv"),
                   row.names=FALSE)
       }, error = function(e){
         warning("Something went wrong!")
         debias_res = data.frame(m_cur = NA, m_deb = NA, asym_sd = NA, intercept = it, rule=rule)
-        write.csv(debias_res, paste0("./debiascf_res_AR/Debiascf_AR_cov_d", d, "_n", n, "_", 
-                                     runInd, "_x", i, "_rule", rule, "_intercept", it, ".csv"), 
+        write.csv(debias_res, paste0("./debiascf_res_AR/Debiascf_AR_cov_d", d, "_n", n, "_",
+                                     runInd, "_x", i, "_rule", rule, "_intercept", it, ".csv"),
                   row.names=FALSE)
       })
     }
   }
-  
+
   gc()
 }
