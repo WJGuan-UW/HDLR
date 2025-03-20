@@ -24,7 +24,7 @@ This R package has two main functions that corresponds to two similar ways to co
 
 ## Some Demo for Running Our Package or Code
 
-```R
+```
 # Open the source files before the package is ready
 require(MASS)
 setwd('R_package/R') # go to the folder of functions
@@ -45,10 +45,10 @@ for (i in 1:d){
   }
 }
 
-invlogit = function(y){
-  # the inverse-logit function \phi(t) = 1 / (1 + e^{-t})
-  return( 1 / (1 + exp(-y)) )
-}
+## True regression coefficient
+s_beta = 5
+theta_0 = rep(0, d)
+theta_0[1:s_beta] = sqrt(5)
 
 ## Generate the design matrix and outcomes via a logistic regression model with intercept 0.2.
 set.seed(123)
@@ -58,12 +58,6 @@ Y_sim = rbinom(n,size=1,prob=plogis(X_sim %*% theta_0 + 0.2))
 ## Current query point
 x = rep(0, d)
 x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
-
-
-## True regression coefficient
-s_beta = 5
-theta_0 = rep(0, d)
-theta_0[1:s_beta] = sqrt(5)
 
 ```
 
