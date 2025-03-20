@@ -72,21 +72,17 @@ require(glmnet)
 require(dplyr)
 
 HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
-                      nfolds=5, refitting=TRUE, intercept=FALSE, level=0.95){
+                      nfolds=5, refitting=TRUE, intercept=FALSE){
   n = nrow(X)
   d = ncol(X)
-
   x = array(x, dim = c(1,length(x)))
   # Lasso pilot estimate
-  lr1 = cv.glmnet(X, Y, family = binomial(link = 'logit'), alpha = 1, type.measure = 'deviance',
-                    intercept = T, nfolds = 10)
+  lr1 = cv.glmnet(X, Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+                  intercept = T, nfolds = nfolds)
   lasso_pilot = glmnet(X, Y, family = binomial(link = 'logit'), alpha = 1,
-                       lambda = lr1$lambda.min, standardize = F, intercept = T)
+                       lambda = lr1$lambda.min, tandardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
-  if (sum(theta_hat != 0) == 0){
-    warning('The Lasso pilot estimate selected a null model! Results may be unreliable.')
-  }
   m_cur = (x %*% theta_hat)[1,1] + alpha_hat
 
   if (refitting==TRUE){
@@ -94,21 +90,18 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
     selected_var = which(abs(theta_hat) != 0)
     lasso_refit = glm(Y ~ X[,selected_var], family = binomial(link = 'logit'))
     alpha_refit = coef(lasso_refit)[1]
-    # theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
-    theta_refit = rep(0, d)
-    theta_refit[selected_var] = coef(lasso_refit)[-1]
+    theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
 
     # Avoid overfitting
-    while (mean(sign(X %*% theta_refit + alpha_refit) == 2 * Y - 1) == 1){
+    while (mean(sign(X %*% theta_refit) == 2 * Y - 1) == 1){
       # randomly drop a feature until the data is not seperable given the remaining features
       drop_var = sample(selected_var, size = 1)
       theta_refit[drop_var] = 0
-      selected_var = selected_var[selected_var != drop_var]
+      selected_var = theta_refit@i
 
       lasso_refit = glm(Y ~ X[,selected_var], family = binomial(link = 'logit'),
                         control = list(epsilon = 1e-4))
-      # theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
-      theta_refit[selected_var] = coef(lasso_refit)[-1]
+      theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
       alpha_refit = coef(lasso_refit)[1]
     }
   }
@@ -127,17 +120,15 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
 
   ## Construct the 95% confidence intervals for the true regression function
   m_deb = m_cur + sum(deb_res$w_obs * (Y - plogis(X %*% theta_hat + alpha_hat))) / sqrt(n)
-  sigmas = dlogis(X %*% theta_hat)
+  sigmas = d.invlogit(X %*% theta_hat)
   asym_sd = sqrt(sum(sigmas * deb_res$w_obs^2) / n)
 
   return(list(m = m_deb,
               sd = asym_sd,
               prob = plogis(m_deb),
-              prob_lower = plogis(m_deb - asym_sd*qnorm(1-(1-level)/2)),
-              prob_upper = plogis(m_deb + asym_sd*qnorm(1-(1-level)/2)),
-              level = level,
+              prob_lower = plogis(m_deb - asym_sd*qnorm(1-0.05/2)),
+              prob_upper = plogis(m_deb + asym_sd*qnorm(1-0.05/2)),
               weights = as.vector(deb_res$w_obs),
-              gamma = deb_res$gamma_n_opt,
               dual_weights = deb_res$ll_obs,
               m_pilot = m_cur))
 }
