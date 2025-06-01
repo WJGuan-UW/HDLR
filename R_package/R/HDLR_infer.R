@@ -77,9 +77,9 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
   d = ncol(X)
   x = array(x, dim = c(1,length(x)))
   # Lasso pilot estimate
-  lr1 = cv.glmnet(X, Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
+  lr1 = cv.glmnet(x=X, y=Y, family = binomial(link='logit'), alpha = 1, type.measure = 'deviance',
                   intercept = T, nfolds = nfolds)
-  lasso_pilot = glmnet(X, Y, family = binomial(link = 'logit'), alpha = 1,
+  lasso_pilot = glmnet(x=X, y=Y, family = binomial(link = 'logit'), alpha = 1,
                        lambda = lr1$lambda.min, tandardize = F, intercept = T)
   theta_hat = coef(lasso_pilot)[-1]
   alpha_hat = coef(lasso_pilot)[1]
@@ -88,20 +88,24 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
   if (refitting==TRUE){
     # refitting on the support
     selected_var = which(abs(theta_hat) != 0)
+    if (length(selected_var) == 0){
+      message('Selected a null model!')
+    }
     lasso_refit = glm(Y ~ X[,selected_var], family = binomial(link = 'logit'))
     alpha_refit = coef(lasso_refit)[1]
-    theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
+    theta_refit = rep(0, d)
+    theta_refit[selected_var] = coef(lasso_refit)[-1]
 
     # Avoid overfitting
-    while (mean(sign(X %*% theta_refit) == 2 * Y - 1) == 1){
+    while (mean(sign(X %*% theta_refit + alpha_refit) == 2 * Y - 1) == 1){
       # randomly drop a feature until the data is not seperable given the remaining features
       drop_var = sample(selected_var, size = 1)
       theta_refit[drop_var] = 0
-      selected_var = theta_refit@i
+      selected_var = selected_var[selected_var != drop_var]
 
       lasso_refit = glm(Y ~ X[,selected_var], family = binomial(link = 'logit'),
                         control = list(epsilon = 1e-4))
-      theta_refit = sparseVector(coef(lasso_refit)[-1], selected_var, length=d)
+      theta_refit[selected_var] = coef(lasso_refit)[-1]
       alpha_refit = coef(lasso_refit)[1]
     }
   }
@@ -114,7 +118,7 @@ HDLR_infer = function(X, Y, x, n_gamma=10, cv_rule='1se',
 
   ## Estimate the debiasing weights with the tuning parameter selected by cross-validations
   gamma_lst = seq(0, max(abs(x)), length.out = n_gamma + 1)[-1]
-  deb_res = DebiasProgCV(X, x, theta_hat = theta_refit, alpha_hat = alpha_refit,
+  deb_res = DebiasProgCV(X = X, x = x, theta_hat = theta_refit, alpha_hat = alpha_refit,
                          intercept = intercept, gamma_lst = gamma_lst,
                          cv_fold = 5, cv_rule = cv_rule)
 

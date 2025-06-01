@@ -3,7 +3,7 @@ Type: Package
 Title: Efficient Inference on High-Dimensional Logistic Regression
 Version: 0.1
 Authors@R: c(
-    person("Wenjie", "Guan", email = "wg285@cornell.edu", role = c("aut", "cre")),
+    person("Wenjie", "Guan", email = "wg285@cornell.edu", role = c("aut", "cre"), comment = c(ORCID = "0009-0006-5493-1048")),
     person("Yikun", "Zhang", email = "yikunzhang@foxmail.com", role = c("aut"), comment = c(ORCID = "0000-0003-3905-6346")))
 Description: An efficient inference procedure for high-dimensional logistic regression models (including conditional log odds ratio and conditional case probabilities).
 URL: https://github.com/WJGuan-UW/HDLR/
