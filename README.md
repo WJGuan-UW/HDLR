@@ -63,7 +63,7 @@ x[c(1, 2, 3, 7, 8)] = c(1, 1/2, 1/4, 1/2, 1/8) / 5
 
 We first try the original method: ``HDLR_infer``
 ```R
-res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=T)
+res = HDLR_infer(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=F)
 
 cat("The 95% confidence interval yielded by our method is [",
     res$prob_lower, ", ",
@@ -74,7 +74,7 @@ cat("The true probability is", plogis(x %*% theta_0 + 0.2))
 
 Then we try the cross-fitting method: ``HDLR_cf``
 ```R
-res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=T)
+res_cf = HDLR_cf(X_sim, Y_sim, x, n_gamma=20, cv_rule='1se', refitting=T, intercept=F)
 cat("The 95% confidence interval yielded by cross-fitting is [",
     res_cf$prob_lower, ", ",
     res_cf$prob_upper, "].\n", sep = "")
