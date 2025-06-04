@@ -138,9 +138,10 @@ HDLR_cf = function(X, Y, x, n_gamma=10, cv_rule='1se',
     sigmas = d.invlogit(X[I2,] %*% theta_hat) # use Lasso instead of refitting
     m_deb = m_cur + sum(deb_res$w_obs * (Y[I2] - plogis(X[I2,] %*% theta_hat + alpha_hat))) / sqrt(length(I2))
     asym_var = sum(deb_res$w_obs^2 * sigmas)
+    rate = length(I2) / n
 
     results = rbind(results, list(k=k,
-                                  rate=length(I2) / n,
+                                  rate=rate,
                                   m_deb=m_deb,
                                   m_cur=m_cur,
                                   asym_var=asym_var))
